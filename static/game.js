@@ -1,3 +1,5 @@
+// @ts-check
+
 var socket = io();
 var localPlayer;
 var TICK_RATE = 1000 / 60;
@@ -38,18 +40,6 @@ socket.on('player_assignment', function (player) {
 setInterval(function () {
   if (!localPlayer) return;
   socket.emit('movement', movement);
-
-  /*const speed = 4.5;
-
-  // calculate angle/positioning here and move player by that much.
-  const diffY = movement.towardY - localPlayer.y;
-  const diffX = movement.towardX - localPlayer.x;
-  const angle = Math.atan2(diffY, diffX);
-
-  localPlayer.y = localPlayer.y + (speed * Math.sin(angle));
-  localPlayer.x = localPlayer.x + (speed * Math.cos(angle));*/
-
-  //renderLocalPlayerPosition(localPlayer);
 }, TICK_RATE);
 
 function renderLocalPlayerPosition(serverPlayer) {
@@ -100,10 +90,6 @@ socket.on('state', function (players) {
     if (localPlayer && localPlayer.socketId === id) {
       var serverLocalPlayer = players[id];
       
-      // for some reason getting rid of this line causes missles to not fire
-      // but it also ruins the rubber-banding fix...
-      //localPlayer = serverLocalPlayer;
-
       renderLocalPlayerPosition(serverLocalPlayer);
       continue;
     }
