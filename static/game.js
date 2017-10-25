@@ -5,63 +5,22 @@ var canvas = document.getElementById('canvas');
 canvas.width = 800;
 canvas.height = 600;
 var context = canvas.getContext('2d');
+const boundingRect = canvas.getBoundingClientRect();
 
 var movement = {
-  up: false,
-  down: false,
-  left: false,
-  right: false,
-  shooting: false
+  towardX: 0,
+  towardY: 0
 }
-document.addEventListener('keydown', function (event) {
-  switch (event.keyCode) {
-    case 65: // A
-      movement.left = true;
-      break;
-    case 87: // W
-      movement.up = true;
-      break;
-    case 68: // D
-      movement.right = true;
-      break;
-    case 83: // S
-      movement.down = true;
-      break;
-    case 32: // spacebar
-      movement.shooting = true;
-      break;
-  }
-});
-document.addEventListener('keyup', function (event) {
-  switch (event.keyCode) {
-    case 65: // A
-      movement.left = false;
-      break;
-    case 87: // W
-      movement.up = false;
-      break;
-    case 68: // D
-      movement.right = false;
-      break;
-    case 83: // S
-      movement.down = false;
-      break;
-    case 32: // spacebar
-      movement.shooting = false;
-      break;
-  }
-});
 
-canvas.addEventListener('mousedown', function(event){
-  if(event.button == 0){
-    alert('you left clicked! ' + event.clientX + ', ' + event.clientY);
-  }
+canvas.addEventListener('mousemove', function(event){
+  movement.towardX = event.clientX - boundingRect.left;
+  movement.towardY = event.clientY - boundingRect.top;
 });
 
 window.onload = function () {
-  var nickname = prompt("What should I call you?", "Elon Musk");
+  var nickname = prompt("What should I call you?", "Voldemort");
   if (nickname == null || nickname == "") {
-    nickname = "Elon Musk";
+    nickname = "Voldemort";
   }
 
   socket.emit('new player', nickname);
@@ -70,11 +29,8 @@ window.onload = function () {
 socket.on('player_assignment', function (player) {
   localPlayer = player;
   movement = {
-    up: false,
-    down: false,
-    left: false,
-    right: false,
-    shooting: false
+    towardX: 0,
+    towardY: 0
   };
 });
 
@@ -83,18 +39,15 @@ setInterval(function () {
   if (!localPlayer) return;
   socket.emit('movement', movement);
 
-  if (movement.left && !(localPlayer.x - 15 < 0)) {
-    localPlayer.x -= 5;
-  }
-  if (movement.right && !(localPlayer.x + 15 > 800)) {
-    localPlayer.x += 5;
-  }
-  if (movement.up && !(localPlayer.y - 15 < 0)) {
-    localPlayer.y -= 5;
-  }
-  if (movement.down && !(localPlayer.y + 15 > 600)) {
-    localPlayer.y += 5;
-  }
+  const speed = 4.5;
+
+  // calculate angle/positioning here and move player by that much.
+  const diffY = movement.towardY - localPlayer.y;
+  const diffX = movement.towardX - localPlayer.x;
+  const angle = Math.atan2(diffY, diffX);
+
+  localPlayer.y = localPlayer.y + (speed * Math.sin(angle));
+  localPlayer.x = localPlayer.x + (speed * Math.cos(angle));
 
   renderLocalPlayerPosition(localPlayer);
 }, TICK_RATE);
@@ -105,26 +58,17 @@ function renderLocalPlayerPosition(serverPlayer) {
   const toleratedMarginOfError = 7;
 
   // check to see if we're within the tolerated margin of error
-  if(Math.abs(localPlayer.x - serverPlayer.x) > toleratedMarginOfError){
+  /*if(Math.abs(localPlayer.x - serverPlayer.x) > toleratedMarginOfError){
     localPlayer.x = serverPlayer.x;
   }
   if(Math.abs(localPlayer.y - serverPlayer.y) > toleratedMarginOfError){
     localPlayer.y = serverPlayer.y;
-  }
+  }*/
 
   var color = localPlayer.color;
   context.fillStyle = color;
   context.beginPath();
-  context.arc(localPlayer.x, localPlayer.y, 10, 0, (2 * Math.PI));
-  context.fill();
-}
-
-function renderLocalPlayerMisslePosition() {
-  if (!localPlayer.missle) return;
-  if (localPlayer.missle.x < 0 || localPlayer.missle.y < 0) return;
-  context.fillStyle = localPlayer.color;
-  context.beginPath();
-  context.arc(localPlayer.missle.x, localPlayer.missle.y, 5, 0, (2 * Math.PI));
+  context.arc(serverPlayer.x, serverPlayer.y, serverPlayer.radius, 0, (2 * Math.PI));
   context.fill();
 }
 
@@ -158,10 +102,9 @@ socket.on('state', function (players) {
       
       // for some reason getting rid of this line causes missles to not fire
       // but it also ruins the rubber-banding fix...
-      localPlayer = serverLocalPlayer;
+      //localPlayer = serverLocalPlayer;
 
-      renderLocalPlayerPosition(serverLocalPlayer);
-      renderLocalPlayerMisslePosition();
+      //renderLocalPlayerPosition(serverLocalPlayer);
       continue;
     }
 
@@ -170,15 +113,6 @@ socket.on('state', function (players) {
     context.fillStyle = color;
     context.beginPath();
     context.arc(player.x, player.y, 10, 0, (2 * Math.PI));
-    context.fill();
-
-    // render player's missle.
-    var missle = player.missle;
-    if (!missle) continue;
-    if (missle.x < 0 || missle.y < 0) continue;
-    context.fillStyle = color;
-    context.beginPath();
-    context.arc(missle.x, missle.y, 5, 0, (2 * Math.PI));
     context.fill();
   }
 
