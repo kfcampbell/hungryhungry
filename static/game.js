@@ -83,7 +83,7 @@ function renderScoreboard(players) {
   }
 }
 
-socket.on('state', function (players) {
+socket.on('state', function (players, npcs) {
   context.clearRect(0, 0, 800, 600);
   for (var id in players) {
 
@@ -99,6 +99,17 @@ socket.on('state', function (players) {
     context.fillStyle = color;
     context.beginPath();
     context.arc(player.x, player.y, 10, 0, (2 * Math.PI));
+    context.fill();
+  }
+
+  for(var i = 0; i < npcs.length; i++){
+    var npc = npcs[i];
+    var color = npc.color;
+    var radius = npc.radius;
+
+    context.fillStyle = color;
+    context.beginPath();
+    context.arc(npc.x, npc.y, radius, 0, (2 * Math.PI));
     context.fill();
   }
 

@@ -27,6 +27,7 @@ server.listen(port, function () {
 
 // add the websocket handlers
 var players = {};
+var npcs = [];
 io.on('connection', function (socket) {
 
     socket.on('new player', function (name) {
@@ -41,6 +42,25 @@ io.on('connection', function (socket) {
             color: 'rgb(' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ')'
         };
         socket.emit('player_assignment', players[socket.id]);
+
+        npcs.push({
+            x: Math.trunc(Math.random() * 800),
+            y: Math.trunc(Math.random() * 600),
+            radius: 5,
+            color: 'rgb(' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ')'
+        },
+        {
+            x: Math.trunc(Math.random() * 800),
+            y: Math.trunc(Math.random() * 600),
+            radius: 5,
+            color: 'rgb(' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ')'
+        },
+        {
+            x: Math.trunc(Math.random() * 800),
+            y: Math.trunc(Math.random() * 600),
+            radius: 5,
+            color: 'rgb(' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ')'
+        });
     });
 
     socket.on('movement', function (movement) {
@@ -74,9 +94,8 @@ function performMovement(players, socketId, movement) {
 
     player.y = player.y + (speed * Math.sin(angle));
     player.x = player.x + (speed * Math.cos(angle));
-
 }
 
 setInterval(function () {
-    io.sockets.emit('state', players);
+    io.sockets.emit('state', players, npcs);
 }, TICK_RATE);
