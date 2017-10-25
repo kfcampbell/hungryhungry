@@ -39,7 +39,7 @@ setInterval(function () {
   if (!localPlayer) return;
   socket.emit('movement', movement);
 
-  const speed = 4.5;
+  /*const speed = 4.5;
 
   // calculate angle/positioning here and move player by that much.
   const diffY = movement.towardY - localPlayer.y;
@@ -47,9 +47,9 @@ setInterval(function () {
   const angle = Math.atan2(diffY, diffX);
 
   localPlayer.y = localPlayer.y + (speed * Math.sin(angle));
-  localPlayer.x = localPlayer.x + (speed * Math.cos(angle));
+  localPlayer.x = localPlayer.x + (speed * Math.cos(angle));*/
 
-  renderLocalPlayerPosition(localPlayer);
+  //renderLocalPlayerPosition(localPlayer);
 }, TICK_RATE);
 
 function renderLocalPlayerPosition(serverPlayer) {
@@ -58,12 +58,12 @@ function renderLocalPlayerPosition(serverPlayer) {
   const toleratedMarginOfError = 7;
 
   // check to see if we're within the tolerated margin of error
-  /*if(Math.abs(localPlayer.x - serverPlayer.x) > toleratedMarginOfError){
+  if(Math.abs(localPlayer.x - serverPlayer.x) > toleratedMarginOfError){
     localPlayer.x = serverPlayer.x;
   }
   if(Math.abs(localPlayer.y - serverPlayer.y) > toleratedMarginOfError){
     localPlayer.y = serverPlayer.y;
-  }*/
+  }
 
   var color = localPlayer.color;
   context.fillStyle = color;
@@ -104,7 +104,7 @@ socket.on('state', function (players) {
       // but it also ruins the rubber-banding fix...
       //localPlayer = serverLocalPlayer;
 
-      //renderLocalPlayerPosition(serverLocalPlayer);
+      renderLocalPlayerPosition(serverLocalPlayer);
       continue;
     }
 

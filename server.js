@@ -63,18 +63,18 @@ function checkAllCollisions(players, socketId) {
 
 function performMovement(players, socketId, movement) {
     var player = players[socketId] || {};
+    player.movement = movement;
 
-    /*const speed = 3;
+    const speed = 4.5;
 
     // calculate angle/positioning here and move player by that much.
     const diffY = movement.towardY - player.y;
-    //const diffY = player.y - movement.towardY;
     const diffX = movement.towardX - player.x;
-    //const diffX = player.x - movement.towardX;
     const angle = Math.atan2(diffY, diffX);
 
     player.y = player.y + (speed * Math.sin(angle));
-    player.x = player.x; //+ (speed * Math.cos(angle));*/
+    player.x = player.x + (speed * Math.cos(angle));
+
 }
 
 setInterval(function () {
