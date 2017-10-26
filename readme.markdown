@@ -1,13 +1,11 @@
 # Eat The Other Balls
 
-My attempt at an Agar.io Clone
+My attempt at an Agar.io Clone. Play at https://hungry-hungry.herokuapp.com/
 
 ## Wishlist
-    * eat other balls
-    * increase radius when balls are eaten
     * change movement speed based on ball radius
-    * spawn NPC balls when players join
-    * spawn NPC balls when players die
-    * implement scoreboard
     * grid on board
     * bigger grid than actual canvas
+    * keep ball in center of grid and move field around it
+    * have max ball size
+    * player names over character
