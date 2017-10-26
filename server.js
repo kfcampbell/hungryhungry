@@ -75,10 +75,55 @@ io.on('connection', function (socket) {
 
 
 function checkAllCollisions(players, socketId) {
-    /*var player = players[socketId] || {};
+    var player = players[socketId] || {};
     for (var key in players) {
-        
-    }*/
+        if(key == socketId) continue;
+        var opposingPlayer = players[key];
+        if(determinePlayerCollision(player, opposingPlayer)){
+            if(player.radius > opposingPlayer.radius){
+                delete players[key];
+                players[socketId].radius += 5;
+            }
+            else if(player.radius < opposingPlayer.radius){
+                delete players[socketId];
+                players[key].radius += 5;
+            }
+        }
+    }
+
+    for(var i = 0; i < npcs.length; i++){
+        var npc = npcs[i];
+        if(determinePlayerCollision(player, npc)){
+            players[socketId].radius += 5;
+            npcs = npcs.splice(i, 1);
+        }
+    }
+}
+
+function determinePlayerCollision(playerOne, playerTwo){
+    if(!(playerOne && playerTwo)) return;
+    if(!(playerOne.x && playerOne.y && playerOne.radius)) return;
+    if(!(playerTwo.x && playerTwo.y && playerTwo.radius)) return;
+
+    if((playerOne.x + playerOne.radius >= playerTwo.x - playerTwo.radius
+        && playerOne.x + playerOne.radius <= playerTwo.x + playerTwo.radius)){
+        if((playerOne.y + playerOne.radius >= playerTwo.y - playerTwo.radius)
+            && playerOne.y + playerOne.radius <= playerTwo.y + playerTwo.radius){
+            return true;
+        }
+    }
+
+    if((playerOne.x - playerOne.radius <= playerTwo.x + playerTwo.radius
+    && playerOne.x - playerOne.radius >= playerTwo.x - playerTwo.radius)){
+        if((playerOne.y - playerOne.radius >= playerTwo.y + playerTwo.radius)
+          && playerOne.y - playerOne.radius <= playerTwo.y - playerTwo.radius){
+              return true;
+        }
+    }
+    return false;
+}
+
+function determineNpcCollision(player, npc){
 }
 
 function performMovement(players, socketId, movement) {
