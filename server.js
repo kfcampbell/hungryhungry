@@ -43,24 +43,9 @@ io.on('connection', function (socket) {
         };
         socket.emit('player_assignment', players[socket.id]);
 
-        npcs.push({
-            x: Math.trunc(Math.random() * 800),
-            y: Math.trunc(Math.random() * 600),
-            radius: 5,
-            color: 'rgb(' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ')'
-        },
-            {
-                x: Math.trunc(Math.random() * 800),
-                y: Math.trunc(Math.random() * 600),
-                radius: 5,
-                color: 'rgb(' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ')'
-            },
-            {
-                x: Math.trunc(Math.random() * 800),
-                y: Math.trunc(Math.random() * 600),
-                radius: 5,
-                color: 'rgb(' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ')'
-            });
+        for(var i = 0; i < 3; i++){
+            npcs.push(generateNpc());
+        }
     });
 
     socket.on('movement', function (movement) {
@@ -73,6 +58,14 @@ io.on('connection', function (socket) {
     });
 });
 
+function generateNpc() {
+    return {
+        x: Math.trunc(Math.random() * 800),
+        y: Math.trunc(Math.random() * 600),
+        radius: 5,
+        color: 'rgb(' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ',' + Math.trunc(Math.random() * 255) + ')'
+    };
+}
 
 function checkAllCollisions(players, socketId) {
     var player = players[socketId] || {};
@@ -81,12 +74,22 @@ function checkAllCollisions(players, socketId) {
         var opposingPlayer = players[key];
         if (determinePlayerCollision(player, opposingPlayer)) {
             if (player.radius > opposingPlayer.radius) {
-                delete players[key];
                 players[socketId].radius += 5;
+                players[socketId].kills += 1;
+                players[key].deaths += 1;
+                players[key].radius = 10;
+                players[key].x = 300;
+                players[key].y = 300;
+                npcs.push(generateNpc());
             }
             else if (player.radius < opposingPlayer.radius) {
-                delete players[socketId];
                 players[key].radius += 5;
+                players[key].kills += 1;
+                players[socketId].deaths += 1;
+                players[socketId].radius = 10;
+                players[socketId].x = 300;
+                players[socketId].y = 300;
+                npcs.push(generateNpc());
             }
         }
     }
@@ -105,7 +108,7 @@ function determinePlayerCollision(playerOne, playerTwo) {
     if (!(playerOne.x && playerOne.y && playerOne.radius)) return;
     if (!(playerTwo.x && playerTwo.y && playerTwo.radius)) return;
 
-    if(isEntirelyContained(playerOne, playerTwo) || isEntirelyContained(playerTwo, playerOne)){
+    if (isEntirelyContained(playerOne, playerTwo) || isEntirelyContained(playerTwo, playerOne)) {
         return true;
     }
 
@@ -131,15 +134,12 @@ function determinePlayerCollision(playerOne, playerTwo) {
     return isXCollision && isYCollision;
 }
 
-function isEntirelyContained(playerOne, playerTwo){
+function isEntirelyContained(playerOne, playerTwo) {
     var isXContained = false;
     var isYContained = false;
-    if(Math.abs(playerOne.x - playerTwo.x) <= playerOne.radius) isXContained = true;
-    if(Math.abs(playerOne.y - playerTwo.y) <= playerTwo.radius) isYContained = true;
+    if (Math.abs(playerOne.x - playerTwo.x) <= playerOne.radius) isXContained = true;
+    if (Math.abs(playerOne.y - playerTwo.y) <= playerTwo.radius) isYContained = true;
     return isXContained && isYContained;
-}
-
-function determineNpcCollision(player, npc) {
 }
 
 function performMovement(players, socketId, movement) {
