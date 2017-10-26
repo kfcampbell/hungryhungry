@@ -98,7 +98,7 @@ socket.on('state', function (players, npcs) {
     var color = player.color;
     context.fillStyle = color;
     context.beginPath();
-    context.arc(player.x, player.y, 10, 0, (2 * Math.PI));
+    context.arc(player.x, player.y, player.radius, 0, (2 * Math.PI));
     context.fill();
   }
 
